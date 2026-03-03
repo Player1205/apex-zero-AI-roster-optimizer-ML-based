@@ -8,6 +8,10 @@ import axios from 'axios';
 // Configurable base URL
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+console.log('🚀 API Base URL:', BASE_URL);
+console.log('🔧 VITE_API_URL from env:', import.meta.env.VITE_API_URL);
+console.log('🌍 All env vars:', import.meta.env);
+
 
 const api = axios.create({
   baseURL: BASE_URL,
