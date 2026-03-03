@@ -6,7 +6,8 @@
 import axios from 'axios';
 
 // Configurable base URL
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://apex-zero-ai-roster-optimizer-ml-based.onrender.com';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 
 const api = axios.create({
   baseURL: BASE_URL,
