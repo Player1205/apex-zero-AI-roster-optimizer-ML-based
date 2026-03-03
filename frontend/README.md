@@ -61,7 +61,7 @@ npm run preview
 The frontend connects to the backend API. Configure the base URL in `.env`:
 
 ```env
-VITE_API_URL=http://localhost:8000
+VITE_API_URL=https://apex-zero-ai-roster-optimizer-ml-based.onrender.com
 ```
 
 For production, update to your deployed backend URL:
