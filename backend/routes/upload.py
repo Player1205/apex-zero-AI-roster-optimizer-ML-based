@@ -44,8 +44,11 @@ async def upload_dataset(file: UploadFile = File(...)):
         # Read uploaded file
         contents = await file.read()
         
+        # Sanitize filename to prevent path traversal
+        safe_filename = os.path.basename(file.filename.replace('\\', '/'))
+        
         # Create temporary file
-        temp_path = f"data/temp_{file.filename}"
+        temp_path = f"data/temp_{safe_filename}"
         ensure_directory_exists(temp_path)
         
         with open(temp_path, 'wb') as f:
@@ -118,8 +121,11 @@ async def validate_dataset(file: UploadFile = File(...)):
     try:
         contents = await file.read()
         
+        # Sanitize filename
+        safe_filename = os.path.basename(file.filename.replace('\\', '/'))
+        
         # Save temporarily for validation
-        temp_path = f"data/temp_validate_{file.filename}"
+        temp_path = f"data/temp_validate_{safe_filename}"
         ensure_directory_exists(temp_path)
         
         with open(temp_path, 'wb') as f:

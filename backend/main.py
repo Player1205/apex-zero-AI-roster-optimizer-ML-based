@@ -8,10 +8,22 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import os
+import sys
+
+# Add project root to sys.path so 'backend' module is found
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.routes import upload, predict, optimize, dashboard
 from backend.schemas.player_schema import HealthResponse, ErrorResponse
 from backend.utils.helpers import check_model_exists, check_predictions_exist
+
+
+from slowapi import _rate_limit_exceeded_handler
+
+from slowapi.errors import RateLimitExceeded
+
+from slowapi.middleware import SlowAPIMiddleware
+from backend.utils.limiter import limiter
 
 # Create FastAPI app   
 app = FastAPI(
@@ -22,16 +34,22 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Add Rate Limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",           # Local development
+        "http://localhost:5173",           # Vite default
         "https://apex-zero-rosteroptimizer-frontend.netlify.app",    # Your Netlify URL
-        "https://*.netlify.app",           # All Netlify preview URLs
     ],
+    allow_origin_regex=r"https://.*\.netlify\.app", # All Netlify preview URLs
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -150,7 +168,7 @@ async def internal_error_handler(request, exc):
         content=ErrorResponse(
             status="error",
             message="Internal server error",
-            detail=str(exc)
+            detail="An unexpected error occurred. Please try again later."
         ).dict()
     )
 
@@ -198,8 +216,9 @@ async def shutdown_event():
 if __name__ == "__main__":
     import uvicorn
     
+    # Run using the module path so it works from root
     uvicorn.run(
-        "main:app",
+        "backend.main:app",
         host="0.0.0.0",
         port=8000,
         reload=True,

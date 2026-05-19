@@ -26,7 +26,14 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Import preprocessing
-from .data_preprocessing import DataPreprocessor
+try:
+    from .data_preprocessing import DataPreprocessor
+except ImportError:
+    # Fallback for when running directly as a script
+    import sys
+    import os
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    from backend.services.data_preprocessing import DataPreprocessor
 
 
 class RosterOptimizationModel:

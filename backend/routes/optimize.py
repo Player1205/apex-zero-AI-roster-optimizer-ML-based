@@ -4,9 +4,10 @@ Optimize Route for Apex Zero API
 Handles roster optimization requests.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from typing import Dict, List, Optional
 import os
+from backend.utils.limiter import limiter
 
 from backend.schemas.player_schema import (
     OptimizeRequest, OptimizeResponse, TradeSimulation, 
@@ -20,7 +21,8 @@ router = APIRouter(prefix="/optimize", tags=["Optimization"])
 
 
 @router.post("/roster", response_model=OptimizeResponse)
-async def optimize_roster(request: OptimizeRequest):
+@limiter.limit("30/minute")
+async def optimize_roster(request: OptimizeRequest, http_request: Request):
     """
     Optimize team roster under constraints.
     

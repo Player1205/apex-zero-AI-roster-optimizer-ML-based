@@ -64,15 +64,19 @@ export const generatePredictions = async () => {
  * Runs roster optimization
  */
 export const optimizeRoster = async (salaryCapInput, rosterSizeInput) => {
+  // Dynamically calculate role constraints based on roster size
+  // Ensure the max constraints sum is greater than the roster size
+  const role_constraints = [
+    { role: 'Batsman', min_count: Math.max(3, Math.floor(rosterSizeInput * 0.25)), max_count: Math.ceil(rosterSizeInput * 0.45) },
+    { role: 'Bowler', min_count: Math.max(3, Math.floor(rosterSizeInput * 0.25)), max_count: Math.ceil(rosterSizeInput * 0.45) },
+    { role: 'Allrounder', min_count: Math.max(1, Math.floor(rosterSizeInput * 0.1)), max_count: Math.ceil(rosterSizeInput * 0.3) },
+    { role: 'Wicketkeeper', min_count: 1, max_count: Math.max(3, Math.ceil(rosterSizeInput * 0.15)) }
+  ];
+
   const response = await api.post('/api/optimize/roster', {
     salary_cap: salaryCapInput,
     roster_size: rosterSizeInput,
-    role_constraints: [
-      { role: 'Batsman', min_count: 3, max_count: 8 },
-      { role: 'Bowler', min_count: 3, max_count: 8 },
-      { role: 'Allrounder', min_count: 1, max_count: 5 },
-      { role: 'Wicketkeeper', min_count: 1, max_count: 3 }
-    ]
+    role_constraints: role_constraints
   });
   
   // Map response to contract format

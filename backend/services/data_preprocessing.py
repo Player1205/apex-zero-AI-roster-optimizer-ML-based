@@ -18,7 +18,14 @@ import os
 from typing import Tuple, Optional
 
 # Import feature engineering functions
-from .feature_engineering import engineer_features
+try:
+    from .feature_engineering import engineer_features
+except ImportError:
+    # Fallback for when running directly as a script
+    import sys
+    import os
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    from backend.services.feature_engineering import engineer_features
 
 
 class DataPreprocessor:
