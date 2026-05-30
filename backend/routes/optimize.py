@@ -22,7 +22,7 @@ router = APIRouter(prefix="/optimize", tags=["Optimization"])
 
 @router.post("/roster", response_model=OptimizeResponse)
 @limiter.limit("30/minute")
-async def optimize_roster(request: OptimizeRequest, http_request: Request):
+async def optimize_roster(request: Request, opt_request: OptimizeRequest):
     """
     Optimize team roster under constraints.
     
@@ -33,7 +33,7 @@ async def optimize_roster(request: OptimizeRequest, http_request: Request):
     - Uses MILP or greedy algorithm
     
     Args:
-        request: Optimization request with constraints
+        opt_request: Optimization request with constraints
         
     Returns:
         OptimizeResponse with selected players and metrics
@@ -52,28 +52,28 @@ async def optimize_roster(request: OptimizeRequest, http_request: Request):
         
         # Convert role constraints to dict format
         role_constraints = None
-        if request.role_constraints:
+        if opt_request.role_constraints:
             role_constraints = {
                 rc.role: (rc.min_count, rc.max_count) 
-                for rc in request.role_constraints
+                for rc in opt_request.role_constraints
             }
         
         # Initialize optimizer
         optimizer = RosterOptimizer()
         
         # Run optimization
-        if request.use_greedy:
+        if opt_request.use_greedy:
             result = optimizer.greedy_optimize(
                 players_df=df,
-                salary_cap=request.salary_cap,
-                roster_size=request.roster_size,
+                salary_cap=opt_request.salary_cap,
+                roster_size=opt_request.roster_size,
                 role_constraints=role_constraints
             )
         else:
             result = optimizer.optimize_roster(
                 players_df=df,
-                salary_cap=request.salary_cap,
-                roster_size=request.roster_size,
+                salary_cap=opt_request.salary_cap,
+                roster_size=opt_request.roster_size,
                 role_constraints=role_constraints
             )
         
